@@ -1,0 +1,7 @@
+﻿  createWorld.cpp
+c:\users\xiangshun bei\dropbox\study\usc\520\hw\hw1\jellocube\createworld\createworld.cpp(62): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+c:\users\xiangshun bei\dropbox\study\usc\520\hw\hw1\jellocube\createworld\createworld.cpp(134): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\string.h(119): note: see declaration of 'strcpy'
+  CreateWorld.vcxproj -> C:\Users\Xiangshun Bei\Dropbox\Study\USC\520\hw\hw1\JelloCube\Debug\CreateWorld.exe
+  CreateWorld.vcxproj -> C:\Users\Xiangshun Bei\Dropbox\Study\USC\520\hw\hw1\JelloCube\Debug\CreateWorld.pdb (Full PDB)
