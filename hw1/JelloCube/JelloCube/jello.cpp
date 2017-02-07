@@ -18,6 +18,8 @@ double Theta = pi / 6;
 double Phi = pi / 6;
 double R = 6;
 
+double dragForce[2] = { 0, 0 };
+
 // mouse control
 int g_iMenuId;
 int g_vMousePos[2];
@@ -36,6 +38,7 @@ int windowWidth, windowHeight;
 double preComputeInclinePara;
 int originalSide;
 double boundingBoxRange;
+double invForceFieldGridLength;
 
 void myinit()
 {
@@ -58,6 +61,7 @@ void myinit()
 	originalSide = jello.p[0][0][0].x * jello.a + jello.p[0][0][0].y * jello.b + jello.p[0][0][0].z * jello.c + jello.d >= 0;
 
 	viewingMode = 1;
+	invForceFieldGridLength = jello.resolution / (2 * boundingBoxRange);
 
 	return;
 }
@@ -200,6 +204,7 @@ void display()
 	{
 		Euler(&jello);
 	}
+	dragForce[0] = dragForce[1] = 0;
 
 	// show the cube
 	showCube(&jello);

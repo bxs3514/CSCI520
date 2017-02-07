@@ -17,6 +17,19 @@
 #include <math.h>
 #include <stdlib.h>
 
+#define NORMALIZE(dest)\
+\
+  double length = sqrt((dest).x * (dest).x + (dest).y * (dest).y + (dest).z * (dest).z);\
+  (dest).x /= length;\
+  (dest).y /= length;\
+  (dest).z /= length;
+
+#define MULTIPLY(src,scalar)\
+\
+  (src).x = (src).x * (scalar);\
+  (src).y = (src).y * (scalar);\
+  (src).z = (src).z * (scalar);
+
 struct Vector3
 {
 	double x;
@@ -151,9 +164,9 @@ int main()
 	jello.resolution = 30;
 	jello.forceField =
 		(struct Vector3 *)malloc(jello.resolution*jello.resolution*jello.resolution * sizeof(struct Vector3));
-	for (i = 0; i <= jello.resolution - 1; i++)
-		for (j = 0; j <= jello.resolution - 1; j++)
-			for (k = 0; k <= jello.resolution - 1; k++)
+	for (i = 0; i < jello.resolution; i++)
+		for (j = 0; j < jello.resolution; j++)
+			for (k = 0; k < jello.resolution; k++)
 			{
 				// set the force at node i,j,k
 				// actual space location = x,y,z
@@ -161,12 +174,21 @@ int main()
 				y = -2 + 4 * (1.0 * j / (jello.resolution - 1));
 				z = -2 + 4 * (1.0 * k / (jello.resolution - 1));
 
+				double forceStrong = 0.05;
+				double g = 0.0;
+				Vector3 v = { -y, x, 0 };
+				NORMALIZE(v);
+				MULTIPLY(v, forceStrong);
+				v.z = g;
+
 				jello.forceField[i * jello.resolution * jello.resolution
+					+ j * jello.resolution + k] = v;
+				/*jello.forceField[i * jello.resolution * jello.resolution
 					+ j * jello.resolution + k].x = 0;
 				jello.forceField[i * jello.resolution * jello.resolution
 					+ j * jello.resolution + k].y = 0;
 				jello.forceField[i * jello.resolution * jello.resolution
-					+ j * jello.resolution + k].z = -0.05;
+					+ j * jello.resolution + k].z = -0.05;*/
 			}
 
 	// set the positions of control points
@@ -179,7 +201,7 @@ int main()
 				jello.p[i][j][k].z = 1.0 * k / 7;
 				if ((i == 7) && (j == 7) && (k == 7))
 				{
-					jello.p[i][j][k].x = 1.0;//3.0 + 5.0 / 7;
+					jello.p[i][j][k].x = 1.0;// + 5.0 / 7;
 					jello.p[i][j][k].y = 1.0;//3.0 + 5.0 / 7;
 					jello.p[i][j][k].z = 1.0;//3.0 + 5.0 / 7;
 				}
@@ -192,9 +214,9 @@ int main()
 		for (j = 0; j <= 7; j++)
 			for (k = 0; k <= 7; k++)
 			{
-				jello.v[i][j][k].x = 10.0;
-				jello.v[i][j][k].y = -10.0;
-				jello.v[i][j][k].z = -40.0;
+				jello.v[i][j][k].x = 0;//10.0;
+				jello.v[i][j][k].y = 0;//-10.0;
+				jello.v[i][j][k].z = 0;//-40.0;
 			}
 
 	// write the jello variable out to file on disk

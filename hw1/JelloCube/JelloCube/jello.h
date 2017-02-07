@@ -26,6 +26,9 @@ extern double Theta;
 extern double Phi;
 extern double R;
 
+//drag force
+extern double dragForce[2];
+
 // number of images saved to disk so far
 extern int sprite;
 
@@ -43,9 +46,11 @@ struct Vector3
 // these variables control what is displayed on the screen
 extern int shear, bend, structural, pause, viewingMode, saveScreenToFile;
 
+// pre-compute constant vars
 extern double preComputeInclinePara;
 extern int originalSide;
 extern double boundingBoxRange;
+extern double invForceFieldGridLength;
 
 struct world
 {

@@ -38,6 +38,19 @@ void mouseMotionDrag(int x, int y)
 {
 	int vMouseDelta[2] = { x - g_vMousePos[0], y - g_vMousePos[1] };
 
+	if (g_iLeftMouseButton)
+	{
+		g_vMousePos[0] = x;
+		g_vMousePos[1] = y;
+
+		dragForce[0] = vMouseDelta[0] * 0.1;
+		dragForce[1] = vMouseDelta[1] * 0.1;
+	}
+	else
+	{
+		dragForce[0] = dragForce[1] = 0.0;
+	}
+
 	if (g_iRightMouseButton) // handle camera rotations
 	{
 		Phi += vMouseDelta[0] * 0.01;

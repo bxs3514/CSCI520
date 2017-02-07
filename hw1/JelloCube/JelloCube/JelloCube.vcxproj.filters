@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\world">
+      <UniqueIdentifier>{844e5d89-0197-47e9-8f6e-bd8567f37b21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -53,5 +56,22 @@
     <ClCompile Include="input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\world\moveLeft.w">
+      <Filter>Resource Files\world</Filter>
+    </None>
+    <None Include="..\world\rotate.w">
+      <Filter>Resource Files\world</Filter>
+    </None>
+    <None Include="..\world\skewedCorner.w">
+      <Filter>Resource Files\world</Filter>
+    </None>
+    <None Include="..\world\gravity.w">
+      <Filter>Resource Files\world</Filter>
+    </None>
+    <None Include="..\world\jello.w">
+      <Filter>Resource Files\world</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -62,8 +62,14 @@ const Vector3 surfaceNormals[6] =
 bool checkRange(double i, double j, double k, double range)
 {
 	return (i <= range) && (i >= -range) &&
-		   (j <= range) && (j >= -range) &&
-		   (k <= range) && (k >= -range);
+		(j <= range) && (j >= -range) &&
+		(k <= range) && (k >= -range);
+}
+
+void clamp(int* i, int range)
+{
+	*i = *i < 0 ? *i = 0 : *i;
+	*i = *i > range - 1 ? range - 1 : *i;
 }
 
 void setPosVelPtrKey(
@@ -75,8 +81,8 @@ void setPosVelPtrKey(
 )
 {
 	int it = i + di, jt = j + dj, kt = k + dk;
-	if ((it >= 0 && it <= 7) && 
-		(jt >= 0 && jt <= 7) && 
+	if ((it >= 0 && it <= 7) &&
+		(jt >= 0 && jt <= 7) &&
 		(kt >= 0 && kt <= 7))
 	{
 		pSurround->pos = &p[it][jt][kt];
@@ -121,7 +127,7 @@ void copySurroundPointPtrs(
 		setPosVelPtrKey(&surround[10], p, v, i, j, k, -d, 0, d);
 		setPosVelPtrKey(&surround[11], p, v, i, j, k, d, 0, -d);
 	}
-	else if(type == SPRING_SHEER_LONG)
+	else if (type == SPRING_SHEER_LONG)
 	{
 		//Long sheer springs
 		setPosVelPtrKey(&surround[0], p, v, i, j, k, -d, -d, -d);
@@ -242,7 +248,7 @@ void calCollisionPoint(const Vector3* P, const Vector3* V, const Vector3* N, dou
 	pNORMALIZE(VN);
 	pMULTIPLY(VN, -1, VN);
 	double VoN = 0.0;
-	
+
 	DOTPRODUCT(VN, (*N), VoN);
 	D /= VoN;
 	pMULTIPLY(VN, D, collisionVector);
@@ -250,12 +256,11 @@ void calCollisionPoint(const Vector3* P, const Vector3* V, const Vector3* N, dou
 
 	if (checkRange(collisionPoint.x, collisionPoint.y, collisionPoint.z, boundingBoxRange))
 	{
-		//Wrong!
 		memcpy(originalCollisionPoint, &collisionPoint, sizeof(Vector3));
 	}
 }
 
-int counter = 0;
+
 Vector3 calSingleMassCollisionForce(struct world* jello, int i, int j, int k)
 {
 	int collisionBit = checkCollision(&(jello->p[i][j][k]), jello->a, jello->b, jello->c, jello->d);
@@ -268,7 +273,7 @@ Vector3 calSingleMassCollisionForce(struct world* jello, int i, int j, int k)
 	Vector3* V = &jello->v[i][j][k];
 	Vector3* P = &jello->p[i][j][k];
 	double D = 0.0;
-	
+
 	if (collisionBit | COLLISION_NONE)
 	{
 		//Vector3 tempForce = { 0, 0, 0 };
@@ -359,10 +364,6 @@ Vector3 calSingleMassCollisionForce(struct world* jello, int i, int j, int k)
 		}
 		if (collisionBit & COLLISION_Z_NAG_BOUND)
 		{
-			if (counter == 1363)
-			{
-				int ttt = 0;
-			}
 			D = -jello->p[i][j][k].z - boundingBoxRange;
 			if (!worldCollisionPoint[i][j][k].collision)
 			{
@@ -403,7 +404,7 @@ Vector3 calSingleMassCollisionForce(struct world* jello, int i, int j, int k)
 
 			/*pSUM(collisionForce, tempForce, collisionForce);*/
 		}
-		counter++;
+
 		Vector3 Vb = { 0, 0, 0 };
 		collisionForce = calPlasticForce(SPRING_COLLISION, jello, &jello->p[i][j][k], &worldCollisionPoint[i][j][k].pos, &jello->v[i][j][k], &Vb, -1);
 	}
@@ -412,11 +413,18 @@ Vector3 calSingleMassCollisionForce(struct world* jello, int i, int j, int k)
 		worldCollisionPoint[i][j][k].collision = false;
 	}
 
-	/*if (abs((int)collisionForce.z) > 500)
-	{
-		int ttt = 10;
-	}*/
 	return collisionForce;
+}
+
+/* Calculate the field force by interpolating */
+Vector3 calForceFieldForce(const Vector3& p)
+{
+	Vector3 forceIndex = { 0, 0, 0 };
+	forceIndex.x = (p.x + boundingBoxRange) * invForceFieldGridLength;
+	forceIndex.y = (p.y + boundingBoxRange) * invForceFieldGridLength;
+	forceIndex.z = (p.z + boundingBoxRange) * invForceFieldGridLength;
+
+	return forceIndex;
 }
 
 Vector3 calSingleMassForce(
@@ -431,11 +439,19 @@ Vector3 calSingleMassForce(
 
 	for (int m = 0; m < surroundCount; ++m)
 	{
+		Vector3 forceFieldIndex = calForceFieldForce(jello->p[i][j][k]);
+		int x = (int)forceFieldIndex.x;
+		int y = (int)forceFieldIndex.y;
+		int z = (int)forceFieldIndex.z;
+		clamp(&x, jello->resolution);
+		clamp(&y, jello->resolution);
+		clamp(&z, jello->resolution);
+
 		forces[m] = calPlasticForce(
 			type, jello,
 			&(jello->p[i][j][k]), surround[m].pos,
 			&(jello->v[i][j][k]), surround[m].vel,
-			FORCEFIELD_INDEX(i, j, k)
+			FORCEFIELD_INDEX(x, y, z)
 		);
 	}
 
@@ -454,6 +470,9 @@ Vector3 calSingleMassForce(
    Returns result in array 'a'. */
 void computeAcceleration(struct world * jello, struct Vector3 a[8][8][8])
 {
+	//Calculate drag force by mouse
+	Vector3 mouseDragForce = { 0, dragForce[0], -dragForce[1] };
+
 	/* for you to implement ... */
 	for (int i = 0; i < 8; ++i)
 	{
@@ -494,6 +513,7 @@ void computeAcceleration(struct world * jello, struct Vector3 a[8][8][8])
 				pSUM(F, fSheerLong, F);
 				pSUM(F, fBend, F);
 				pSUM(F, collisionForce, F);
+				pSUM(F, mouseDragForce, F);
 				P_DIVIDE(F, jello->mass, a[i][j][k]);
 			}
 		}
